@@ -248,12 +248,188 @@
           width: 100%;
         }
       }
+
+      /* === Start Menu === */
+      #startMenu {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: var(--card);
+        padding: 40px 30px;
+        border-radius: 16px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+        z-index: 9999;
+        text-align: center;
+        width: 90%;
+        transition: opacity 0.3s ease, transform 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        backdrop-filter: blur(8px);
+        animation: slideFadeIn 0.5s ease forwards;
+        opacity: 0;
+      }
+
+      /* Entrance animation */
+      @keyframes slideFadeIn {
+        0% {
+          opacity: 0;
+          transform: translate(-50%, -60%);
+        }
+        100% {
+          opacity: 1;
+          transform: translate(-50%, -50%);
+        }
+      }
+
+      /* Heading with icon support */
+      #startMenu h2 {
+        font-size: 2rem;
+        color: var(--accent);
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+      }
+
+      /* Description */
+      #startMenu p {
+        color: var(--text-muted);
+        font-size: 1rem;
+        margin: 0;
+        line-height: 1.5;
+      }
+
+      #startMenu a {
+        color: var(--accent);
+        font-size: 1rem;
+        margin: 0;
+        line-height: 1.5;
+      }
+
+      /* Select dropdown */
+      #startSheetSelect {
+        margin-bottom: 1rem;
+        font-size: 1rem;
+        padding: 10px 14px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background-color: var(--bg);
+        color: var(--accent);
+        transition: border-color 0.3s ease;
+      }
+
+      #startSheetSelect:focus {
+        outline: none;
+        border-color: var(--accent);
+      }
+
+      /* Start Button */
+      #startButton {
+        background-color: var(--button);
+        color: #fff;
+        padding: 14px 28px;
+        font-size: 1rem;
+        font-weight: 600;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+      }
+
+      #startButton:hover {
+        transform: translateY(-2px);
+        opacity: 0.95;
+        box-shadow: 0 4px 12px rgba(139, 30, 63, 0.3);
+      }
+
+      /* === Start Theme Toggle Button === */
+      .starttheme-toggle {
+        position: absolute;
+        top: 6%;
+        right: 1%;
+        background-color: var(--button);
+        color: #fff;
+        padding: 6px 16px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 600;
+        transition: background 0.3s ease, transform 0.2s ease;
+      }
+  
+      .starttheme-toggle:hover {
+        transform: scale(1.05);
+        opacity: 0.9;
+      }
+
+      /* fade-out animation for when it's removed */
+      .fadeOut {
+        opacity: 0;
+        transform: translate(-50%, -60%);
+        pointer-events: none;
+      }
+
+      #quiz, header, .results {
+        animation: fadeIn 0.4s ease both;
+      }
+
+      @keyframes fadeIn {
+        from { opacity: 0; transform: scale(0.97); }
+        to { opacity: 1; transform: scale(1); }
+      }
+
+
     </style>  
   </head>
 
   <body>
+
+    <!-- Start Menu -->
+
+
+    <div id="startMenu">
+
+      <button class="starttheme-toggle" onclick="start_toggleTheme()">🌞 Light Mode</button>
+
+      <h2>
+        <span>📝</span> Welcome to the UPCAT Review Tests
+      </h2>
+      <p>
+        Important Links:
+        <br>
+          <a href="https://docs.google.com/document/d/1WZ89kvQ3CcbYpp1TP8RZ1UYf_wBPZU5SCQPLPy_EMcA/edit?usp=sharing"> Docs for Notes </a> 
+          <br>
+          <a href="https://docs.google.com/spreadsheets/d/1kuDD6jntodytSzmJProXucEkJv5LA2-gY2OznVP0goQ/edit?usp=sharing"> Sheets for Schedule/Topic Lists </a>
+          <br>
+          <br>
+        If you have any suggestions, or requests, please feel free to message me :D
+        <br>
+        I hope this helps you in prepping for your CETs!!
+        <br>
+        <br>
+        (im lf help in fixing notes + double-checking questions and correct answers, js contact me, I appreciate all the help <3)
+        <br>
+        <br>
+        To start, select a quiz set below, then click Start Quiz to begin. You’ll be timed and shown results after submitting.
+        <br>
+        *the topics covered per day are in sheets
+      </p>
+      <select id="startSheetSelect">
+        <option value="W1D1">W1D1</option>
+        <option value="W1D2">W1D2</option>
+        <option value="W1D3">W1D3</option>
+        <option value="W1D4">W1D4</option>
+        <option value="W1D5">W1D5</option>
+      </select>
+      <button id="startButton" onclick="startQuiz()">Start Quiz</button>
+    </div>    
+    
     <!-- Header section containing the title, timer, progress bar, sheet selector, and theme toggle -->
-    <header>
+    <header style="display: none;">
       <h1>UPCAT Review Tests</h1>
       <div class="quiz-meta">
         <!-- Timer display -->
@@ -274,20 +450,21 @@
         </select>
   
         <!-- Button to toggle dark/light mode -->
-        <button class="theme-toggle" onclick="toggleTheme()">🌙 Dark Mode</button>
+        <button class="theme-toggle" onclick="toggleTheme()">🌞 Light Mode</button>
       </div>
     </header>
   
     <!-- Where quiz questions will be inserted -->
-    <div id="quiz"></div>
+    <div id="quiz" style="display: none;"></div>
   
     <!-- Submit button to check answers -->
-    <button onclick="submitQuiz()">Submit Answers</button>
+    <button onclick="submitQuiz()" style="display: none;">Submit Answers</button>
   
     <!-- Results will be shown here -->
-    <div class="results" id="results"></div>
+    <div class="results" id="results" style="display: none;"></div>
   
     <!-- Theme toggle script -->
+    
     <script>
       function toggleTheme() {
         const html = document.documentElement;
@@ -296,8 +473,40 @@
         const toggleBtn = document.querySelector('.theme-toggle');
         toggleBtn.textContent = isDark ? '🌙 Dark Mode' : '🌞 Light Mode';
       }
+
+      function start_toggleTheme() {
+        const html = document.documentElement;
+        const isDark = html.getAttribute('data-theme') === 'dark';
+        html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+        const toggleBtn = document.querySelector('.starttheme-toggle');
+        toggleBtn.textContent = isDark ? '🌙 Dark Mode' : '🌞 Light Mode';
+      }
     </script>
   
+    <!-- Start Menu Logic -->
+
+    <script>
+      function startQuiz() {
+        // Get selected sheet
+        const selectedSheet = document.getElementById("startSheetSelect").value;
+    
+        // Hide start menu
+        document.getElementById("startMenu").style.display = "none";
+    
+        // Show quiz elements
+        document.querySelector("header").style.display = "flex";
+        document.getElementById("quiz").style.display = "block";
+        document.querySelector("button[onclick='submitQuiz()']").style.display = "block";
+        document.getElementById("results").style.display = "block";
+    
+        // Set dropdown to match selection
+        document.getElementById("sheetSelect").value = selectedSheet;
+    
+        // Load quiz
+        loadQuiz(selectedSheet);
+      }
+    </script>
+    
     <!-- Quiz logic script -->
     <script>
       // Google Sheets setup
@@ -314,9 +523,6 @@
       let correctAnswers = []; // Stores correct answers from the sheet
       let totalQuestions = 0;  // Used to track progress and scoring
       let timeLeft = 2700;     // 45 minutes in seconds
-
-      // Load the first sheet automatically
-      loadQuiz(sheetSelect.value);
 
       // Load a new quiz when the dropdown changes
       sheetSelect.addEventListener("change", () => {
