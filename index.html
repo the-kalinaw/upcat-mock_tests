@@ -265,7 +265,13 @@
         </div>
   
         <!-- Dropdown to select which Google Sheet tab (quiz) to load -->
-        <select id="sheetSelect"></select>
+        <select id="sheetSelect">
+          <option value="W1D1">W1D1</option>
+          <option value="W1D2">W1D2</option>
+          <option value="W1D3">W1D3</option>
+          <option value="W1D4">W1D4</option>
+          <option value="W1D5">W1D5</option>
+        </select>
   
         <!-- Button to toggle dark/light mode -->
         <button class="theme-toggle" onclick="toggleTheme()">🌙 Dark Mode</button>
@@ -294,91 +300,79 @@
   
     <!-- Quiz logic script -->
     <script>
-      const sheetSelect = document.getElementById("sheetSelect");
-
-      async function loadSheetNames() {
-        try {
-          const res = await fetch("https://script.google.com/macros/s/AKfycbxqFAn4E7-Eepu-D17DXxKn2c14HGt-9NSoXlnZU6qbHR86TLPCGAee3GudefPE4tB-6w/exec?mode=sheets"); // mode param to avoid error
-          const sheetNames = await res.json();
-
-          sheetSelect.innerHTML = ""; // Clear old options
-          sheetNames.forEach(name => {
-            const option = document.createElement("option");
-            option.value = name;
-            option.textContent = name;
-            sheetSelect.appendChild(option);
-          });
-
-          // Automatically load the first sheet
-          loadQuiz(sheetNames[0]);
-        } catch (err) {
-          console.error("Failed to load sheet names:", err);
-        }
-      }
-
-      window.addEventListener("DOMContentLoaded", loadSheetNames);
-
+      // Google Sheets setup
+      const spreadsheetId = "1bVhB2sl5zKiTme-kS0gYqMcFnm8M3XcxWI0iGuvpJxo";
+      const apiKey = "AIzaSyCZ0SaoxwS__1JEVbeyE7_18st5KYXmghs";
+  
+      // Get elements by ID
       const quizContainer = document.getElementById("quiz");
+      const sheetSelect = document.getElementById("sheetSelect");
       const timerElement = document.getElementById("timer");
       const progressBar = document.getElementById("progressBar");
+  
+      // Global quiz state
+      let correctAnswers = []; // Stores correct answers from the sheet
+      let totalQuestions = 0;  // Used to track progress and scoring
+      let timeLeft = 2700;     // 45 minutes in seconds
 
-      let correctAnswers = [];
-      let totalQuestions = 0;
-      let timeLeft = 2700;
+      // Load the first sheet automatically
+      loadQuiz(sheetSelect.value);
 
+      // Load a new quiz when the dropdown changes
       sheetSelect.addEventListener("change", () => {
         loadQuiz(sheetSelect.value);
       });
-
+  
+      // Update the progress bar based on how many questions were answered
       function updateProgress() {
         const answered = document.querySelectorAll("input[type=radio]:checked").length;
         const percent = Math.round((answered / totalQuestions) * 100);
         progressBar.style.width = percent + "%";
       }
-
+  
+      // Anytime a selection changes (a radio button is clicked), update the bar
       document.addEventListener("change", updateProgress);
-
+  
+      // Timer countdown logic
       function startTimer() {
-        clearInterval(window._timerInterval);
+        clearInterval(window._timerInterval); // Clear any previous timers
         window._timerInterval = setInterval(() => {
           const minutes = Math.floor(timeLeft / 60);
           const seconds = timeLeft % 60;
           timerElement.textContent = `Time left: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
           if (timeLeft <= 0) {
             clearInterval(window._timerInterval);
-            submitQuiz();
+            submitQuiz(); // Auto-submit when time runs out
           }
           timeLeft--;
         }, 1000);
       }
-
+  
+      // Fetch data from Google Sheets and prepare quiz
       async function loadQuiz(sheetName) {
-        try {
-          const res = await fetch(`https://script.google.com/macros/s/AKfycbxqFAn4E7-Eepu-D17DXxKn2c14HGt-9NSoXlnZU6qbHR86TLPCGAee3GudefPE4tB-6w/exec?sheet=${encodeURIComponent(sheetName)}`);
-          const data = await res.json();
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${sheetName}?key=${apiKey}`;
+        const res = await fetch(url);
+        const data = await res.json();
+  
+        const rows = data.values;      // All data rows from the sheet
+        const headers = rows[0];       // First row is headers (e.g., Question, A, B, C, D, Answer)
+        const questions = rows.slice(1).map(row => {
+          const q = {};
+          headers.forEach((h, i) => q[h] = row[i]); // Map each row into a question object
+          return q;
+        });
+  
+        correctAnswers = questions.map(q => q.Answer.trim().toUpperCase()); // Store correct answers
+        totalQuestions = questions.length;
+        displayQuestions(questions);  // Render on page
+        timeLeft = 2700;              // Reset timer
+        startTimer();                 // Start timer
+        updateProgress();            // Reset progress bar
+      }      
 
-          const rows = data.values;
-          const headers = rows[0];
-          const questions = rows.slice(1).map(row => {
-            const q = {};
-            headers.forEach((h, i) => q[h] = row[i]);
-            return q;
-          });
-
-          correctAnswers = questions.map(q => q.Answer.trim().toUpperCase());
-          totalQuestions = questions.length;
-          displayQuestions(questions);
-          timeLeft = 2700;
-          startTimer();
-          updateProgress();
-
-        } catch (err) {
-          console.error("Failed to load quiz data:", err);
-        }
-      }
-
+      // Display all quiz questions on the page
       function displayQuestions(questions) {
-        quizContainer.innerHTML = "";
+        quizContainer.innerHTML = ""; // Clear old questions
         questions.forEach((q, idx) => {
           const div = document.createElement("div");
           div.className = "question";
@@ -392,19 +386,21 @@
           quizContainer.appendChild(div);
         });
       }
-
+  
+      // Handles quiz submission and scoring
       function submitQuiz() {
         if (!confirm("Are you sure you want to submit your answers?")) return;
-
+  
         const resultsDiv = document.getElementById("results");
         resultsDiv.innerHTML = "<h2>Results:</h2>";
         let score = 0;
-
+  
         for (let i = 0; i < totalQuestions; i++) {
           const selected = document.querySelector(`input[name="q${i}"]:checked`);
           const correct = correctAnswers[i];
           if (!selected) {
             resultsDiv.innerHTML += `<p>Question ${i + 1}: ❗ Unanswered</p>`;
+            scrollToUnanswered(i);
           } else if (selected.value === correct) {
             score++;
             resultsDiv.innerHTML += `<p class="correct">Question ${i + 1}: ✅ Correct</p>`;
@@ -412,10 +408,14 @@
             resultsDiv.innerHTML += `<p class="incorrect">Question ${i + 1}: ❌ Incorrect (Correct: ${correct})</p>`;
           }
         }
-
+  
         resultsDiv.innerHTML += `<h3>Your Score: ${score}/${totalQuestions}</h3>`;
         resultsDiv.innerHTML += `<button onclick="loadQuiz(sheetSelect.value)">Retake Quiz</button>`;
       }
+  
+      // Load default quiz on first page load
+      loadQuiz(sheetSelect.value);
     </script>
   </body>
+
 </html>
