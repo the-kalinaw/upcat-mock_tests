@@ -430,17 +430,4 @@
       loadQuiz(sheetSelect.value);
     </script>
   </body>
-
 </html>
-
-
-
-
-
-// Scrolls to the first unanswered question (if any)
-function scrollToUnanswered(startIdx) {
-  const unanswered = document.querySelector(`input[name="q${startIdx}"]:not(:checked)`);
-  if (unanswered) {
-    unanswered.scrollIntoView({ behavior: "smooth", block: "center" });
-  }
-}
