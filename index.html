@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+  
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>UPCAT Review Tests</title>
+  
+    <!-- Import Google Fonts for cleaner typography -->
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+  
+      /* === Root-level Color Variables for Theme Management === */
+      :root {
+        --correct: #00693e;    /* Green for correct answers */
+        --incorrect: #c62828;  /* Red for incorrect answers */
+      }
+  
+      /* === Dark Theme Color Palette === */
+      [data-theme="dark"] {
+        --accent: #b4e197;        /* Light green accent */
+        --bg: #181818;            /* Page background */
+        --card: #242424;          /* Card background */
+        --text: #e0e0e0;          /* Main text */
+        --text-muted: #aaaaaa;    /* Less emphasized text */
+        --hover: rgba(139, 30, 63, 0.15); /* Hover highlight */
+        --button: #8B1E3F;        /* Main button color */
+      }
+  
+      /* === Light Theme Color Palette === */
+      [data-theme="light"] {
+        --accent: #8B1E3F;
+        --bg: #f0f0f0;
+        --card: #fafafa;
+        --text: #111111;
+        --text-muted: #555555;
+        --hover: rgba(139, 30, 63, 0.1);
+        --button: #8B1E3F;
+      }
+  
+      /* === Global Box-Sizing === */
+      * {
+        box-sizing: inherit;
+      }
+  
+      *::before,
+      *::after {
+        box-sizing: inherit;
+      }
+  
+      html {
+        box-sizing: border-box;
+      }
+  
+      /* === Page Styling === */
+      body {
+        margin: 0;
+        font-family: 'Poppins', sans-serif;
+        background-color: var(--bg);
+        color: var(--text);
+        padding-top: 70px; /* space for fixed header */
+        min-height: 100vh;
+        transition: background-color 0.4s ease, color 0.4s ease;
+      }
+  
+      /* === Header Styling (Top Bar) === */
+      header {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        height: 10%;
+        background-color: var(--card);
+        box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        z-index: 999;
+        padding: 15px 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: background-color 0.4s ease;
+      }
+  
+      header h1 {
+        margin: 0;
+        font-size: 150%;
+        color: var(--accent);
+        flex-grow: 1;
+        text-align: center;
+        transition: color 0.3s ease;
+      }
+  
+      /* === Quiz Meta Info (Timer + Progress) === */
+      .quiz-meta {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        min-height: 50px;
+      }
+  
+      .timer {
+        font-weight: bold;
+        font-size: 100%;
+        color: var(--accent);
+      }
+  
+      #progressBarContainer {
+        width: 150px;
+        height: 10px;
+        background-color: #333;
+        border-radius: 10px;
+        overflow: hidden;
+      }
+  
+      #progressBar {
+        height: 100%;
+        background-color: var(--correct);
+        width: 0%;
+        transition: width 0.3s ease;
+      }
+  
+      /* === Main Quiz Container === */
+      #quiz {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 30px 20px;
+      }
+  
+      /* === Individual Question Card === */
+      .question {
+        background-color: var(--card);
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin-bottom: 25px;
+        animation: fadeInSlideUp 0.5s ease both;
+        opacity: 0;
+      }
+  
+      @keyframes fadeInSlideUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px) scale(0.97);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+  
+      .question p {
+        margin: 0 0 10px;
+        font-weight: 600;
+        color: var(--accent);
+      }
+  
+      .question label {
+        display: block;
+        padding: 10px 14px;
+        margin: 6px 0;
+        border-radius: 6px;
+        background: transparent;
+        transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+        cursor: pointer;
+      }
+  
+      .question label:hover {
+        background-color: var(--hover);
+        transform: scale(1.015);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+      }
+  
+      input[type="radio"] {
+        margin-right: 10px;
+      }
+  
+      /* === Submit Button === */
+      button {
+        background-color: var(--button);
+        color: #fff;
+        padding: 14px 30px;
+        font-weight: 600;
+        font-size: 16px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        display: block;
+        margin: -20px auto 20px;
+        transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+      }
+  
+      button:hover {
+        opacity: 0.95;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 10px rgba(139, 30, 63, 0.2);
+      }
+  
+      /* === Results Display Styling === */
+      .results {
+        max-width: 800px;
+        margin: 0 auto 40px;
+        padding: 20px;
+        border-top: 1px solid #444;
+      }
+  
+      .correct {
+        color: var(--correct);
+      }
+  
+      .incorrect {
+        color: var(--incorrect);
+      }
+  
+      /* === Theme Toggle Button === */
+      .theme-toggle {
+        position: relative;
+        top: 20px;
+        left: 2%;
+        background-color: var(--button);
+        color: #fff;
+        padding: 6px 16px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 600;
+        transition: background 0.3s ease, transform 0.2s ease;
+      }
+  
+      .theme-toggle:hover {
+        transform: scale(1.05);
+        opacity: 0.9;
+      }
+  
+      /* === Mobile Responsive Header === */
+      @media (max-width: 600px) {
+        header {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 10px;
+        }
+  
+        .quiz-meta {
+          width: 100%;
+          justify-content: space-between;
+        }
+  
+        header h1 {
+          text-align: left;
+          width: 100%;
+        }
+      }
+    </style>  
+  </head>
+
+  <body>
+    <!-- Header section containing the title, timer, progress bar, sheet selector, and theme toggle -->
+    <header>
+      <h1>UPCAT Review Tests</h1>
+      <div class="quiz-meta">
+        <!-- Timer display -->
+        <div class="timer" id="timer">Time left: 45:00</div>
+  
+        <!-- Progress bar container -->
+        <div id="progressBarContainer">
+          <div id="progressBar"></div>
+        </div>
+  
+        <!-- Dropdown to select which Google Sheet tab (quiz) to load -->
+        <select id="sheetSelect"></select>
+  
+        <!-- Button to toggle dark/light mode -->
+        <button class="theme-toggle" onclick="toggleTheme()">🌙 Dark Mode</button>
+      </div>
+    </header>
+  
+    <!-- Where quiz questions will be inserted -->
+    <div id="quiz"></div>
+  
+    <!-- Submit button to check answers -->
+    <button onclick="submitQuiz()">Submit Answers</button>
+  
+    <!-- Results will be shown here -->
+    <div class="results" id="results"></div>
+  
+    <!-- Theme toggle script -->
+    <script>
+      function toggleTheme() {
+        const html = document.documentElement;
+        const isDark = html.getAttribute('data-theme') === 'dark';
+        html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+        const toggleBtn = document.querySelector('.theme-toggle');
+        toggleBtn.textContent = isDark ? '🌙 Dark Mode' : '🌞 Light Mode';
+      }
+    </script>
+  
+    <!-- Quiz logic script -->
+    <script>
+      const sheetSelect = document.getElementById("sheetSelect");
+
+      async function loadSheetNames() {
+        try {
+          const res = await fetch("https://script.google.com/macros/s/AKfycbxqFAn4E7-Eepu-D17DXxKn2c14HGt-9NSoXlnZU6qbHR86TLPCGAee3GudefPE4tB-6w/exec?mode=sheets"); // mode param to avoid error
+          const sheetNames = await res.json();
+
+          sheetSelect.innerHTML = ""; // Clear old options
+          sheetNames.forEach(name => {
+            const option = document.createElement("option");
+            option.value = name;
+            option.textContent = name;
+            sheetSelect.appendChild(option);
+          });
+
+          // Automatically load the first sheet
+          loadQuiz(sheetNames[0]);
+        } catch (err) {
+          console.error("Failed to load sheet names:", err);
+        }
+      }
+
+      window.addEventListener("DOMContentLoaded", loadSheetNames);
+
+      const quizContainer = document.getElementById("quiz");
+      const timerElement = document.getElementById("timer");
+      const progressBar = document.getElementById("progressBar");
+
+      let correctAnswers = [];
+      let totalQuestions = 0;
+      let timeLeft = 2700;
+
+      sheetSelect.addEventListener("change", () => {
+        loadQuiz(sheetSelect.value);
+      });
+
+      function updateProgress() {
+        const answered = document.querySelectorAll("input[type=radio]:checked").length;
+        const percent = Math.round((answered / totalQuestions) * 100);
+        progressBar.style.width = percent + "%";
+      }
+
+      document.addEventListener("change", updateProgress);
+
+      function startTimer() {
+        clearInterval(window._timerInterval);
+        window._timerInterval = setInterval(() => {
+          const minutes = Math.floor(timeLeft / 60);
+          const seconds = timeLeft % 60;
+          timerElement.textContent = `Time left: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+          if (timeLeft <= 0) {
+            clearInterval(window._timerInterval);
+            submitQuiz();
+          }
+          timeLeft--;
+        }, 1000);
+      }
+
+      async function loadQuiz(sheetName) {
+        try {
+          const res = await fetch(`https://script.google.com/macros/s/AKfycbxqFAn4E7-Eepu-D17DXxKn2c14HGt-9NSoXlnZU6qbHR86TLPCGAee3GudefPE4tB-6w/exec?sheet=${encodeURIComponent(sheetName)}`);
+          const data = await res.json();
+
+          const rows = data.values;
+          const headers = rows[0];
+          const questions = rows.slice(1).map(row => {
+            const q = {};
+            headers.forEach((h, i) => q[h] = row[i]);
+            return q;
+          });
+
+          correctAnswers = questions.map(q => q.Answer.trim().toUpperCase());
+          totalQuestions = questions.length;
+          displayQuestions(questions);
+          timeLeft = 2700;
+          startTimer();
+          updateProgress();
+
+        } catch (err) {
+          console.error("Failed to load quiz data:", err);
+        }
+      }
+
+      function displayQuestions(questions) {
+        quizContainer.innerHTML = "";
+        questions.forEach((q, idx) => {
+          const div = document.createElement("div");
+          div.className = "question";
+          div.innerHTML = `
+            <p><strong>${idx + 1}. ${q.Question}</strong></p>
+            <label><input type="radio" name="q${idx}" value="A"> A. ${q.A}</label>
+            <label><input type="radio" name="q${idx}" value="B"> B. ${q.B}</label>
+            <label><input type="radio" name="q${idx}" value="C"> C. ${q.C}</label>
+            <label><input type="radio" name="q${idx}" value="D"> D. ${q.D}</label>
+          `;
+          quizContainer.appendChild(div);
+        });
+      }
+
+      function submitQuiz() {
+        if (!confirm("Are you sure you want to submit your answers?")) return;
+
+        const resultsDiv = document.getElementById("results");
+        resultsDiv.innerHTML = "<h2>Results:</h2>";
+        let score = 0;
+
+        for (let i = 0; i < totalQuestions; i++) {
+          const selected = document.querySelector(`input[name="q${i}"]:checked`);
+          const correct = correctAnswers[i];
+          if (!selected) {
+            resultsDiv.innerHTML += `<p>Question ${i + 1}: ❗ Unanswered</p>`;
+          } else if (selected.value === correct) {
+            score++;
+            resultsDiv.innerHTML += `<p class="correct">Question ${i + 1}: ✅ Correct</p>`;
+          } else {
+            resultsDiv.innerHTML += `<p class="incorrect">Question ${i + 1}: ❌ Incorrect (Correct: ${correct})</p>`;
+          }
+        }
+
+        resultsDiv.innerHTML += `<h3>Your Score: ${score}/${totalQuestions}</h3>`;
+        resultsDiv.innerHTML += `<button onclick="loadQuiz(sheetSelect.value)">Retake Quiz</button>`;
+      }
+
+    </script>
+    
+  </body>
+
+</html>
+
+
+
+
+
+// Scrolls to the first unanswered question (if any)
+function scrollToUnanswered(startIdx) {
+  const unanswered = document.querySelector(`input[name="q${startIdx}"]:not(:checked)`);
+  if (unanswered) {
+    unanswered.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+}
