@@ -416,21 +416,6 @@
         resultsDiv.innerHTML += `<h3>Your Score: ${score}/${totalQuestions}</h3>`;
         resultsDiv.innerHTML += `<button onclick="loadQuiz(sheetSelect.value)">Retake Quiz</button>`;
       }
-
     </script>
-    
   </body>
-
 </html>
-
-
-
-
-
-// Scrolls to the first unanswered question (if any)
-function scrollToUnanswered(startIdx) {
-  const unanswered = document.querySelector(`input[name="q${startIdx}"]:not(:checked)`);
-  if (unanswered) {
-    unanswered.scrollIntoView({ behavior: "smooth", block: "center" });
-  }
-}
