@@ -4,399 +4,346 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">    
+
     <title>UPCAT Review Tests</title>
   
     <!-- Import Google Fonts for cleaner typography -->
     <style>
-      @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
-  
-      /* === Root-level Color Variables for Theme Management === */
-      :root {
-        --correct: #00693e;    /* Green for correct answers */
-        --incorrect: #c62828;  /* Red for incorrect answers */
-      }
-  
-      /* === Dark Theme Color Palette === */
-      [data-theme="dark"] {
-        --accent: #b4e197;        /* Light green accent */
-        --bg: #181818;            /* Page background */
-        --card: #242424;          /* Card background */
-        --text: #e0e0e0;          /* Main text */
-        --text-muted: #aaaaaa;    /* Less emphasized text */
-        --hover: rgba(139, 30, 63, 0.15); /* Hover highlight */
-        --button: #8B1E3F;        /* Main button color */
-      }
-  
-      /* === Light Theme Color Palette === */
-      [data-theme="light"] {
-        --accent: #8B1E3F;
-        --bg: #f0f0f0;
-        --card: #fafafa;
-        --text: #111111;
-        --text-muted: #555555;
-        --hover: rgba(139, 30, 63, 0.1);
-        --button: #8B1E3F;
-      }
-  
-      /* === Global Box-Sizing === */
-      * {
-        box-sizing: inherit;
-      }
-  
-      *::before,
-      *::after {
-        box-sizing: inherit;
-      }
-  
-      html {
-        box-sizing: border-box;
-      }
-  
-      /* === Page Styling === */
-      body {
-        margin: 0;
-        font-family: 'Poppins', sans-serif;
-        background-color: var(--bg);
-        color: var(--text);
-        padding-top: 70px; /* space for fixed header */
-        min-height: 100vh;
-        transition: background-color 0.4s ease, color 0.4s ease;
-      }
-  
-      /* === Header Styling (Top Bar) === */
-      header {
-        position: fixed;
-        top: 0;
-        width: 100%;
-        height: 10%;
-        background-color: var(--card);
-        box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-        z-index: 999;
-        padding: 15px 30px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        transition: background-color 0.4s ease;
-      }
-  
-      header h1 {
-        margin: 0;
-        font-size: 150%;
-        color: var(--accent);
-        flex-grow: 1;
-        text-align: center;
-        transition: color 0.3s ease;
-      }
-  
-      /* === Quiz Meta Info (Timer + Progress) === */
-      .quiz-meta {
-        display: flex;
-        align-items: center;
-        gap: 20px;
-        min-height: 50px;
-      }
-  
-      .timer {
-        font-weight: bold;
-        font-size: 100%;
-        color: var(--accent);
-      }
-  
-      #progressBarContainer {
-        width: 150px;
-        height: 10px;
-        background-color: #333;
-        border-radius: 10px;
-        overflow: hidden;
-      }
-  
-      #progressBar {
-        height: 100%;
-        background-color: var(--correct);
-        width: 0%;
-        transition: width 0.3s ease;
-      }
-  
-      /* === Main Quiz Container === */
-      #quiz {
-        max-width: 800px;
-        margin: 0 auto;
-        padding: 30px 20px;
-      }
-  
-      /* === Individual Question Card === */
-      .question {
-        background-color: var(--card);
-        padding: 20px;
-        border-radius: 12px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        margin-bottom: 25px;
-        animation: fadeInSlideUp 0.5s ease both;
-        opacity: 0;
-      }
-  
-      @keyframes fadeInSlideUp {
-        from {
-          opacity: 0;
-          transform: translateY(20px) scale(0.97);
+        /* === Font and Box Model Setup === */
+        html {
+          box-sizing: border-box;
+          font-size: 16px;
+          scroll-behavior: smooth;
         }
-        to {
-          opacity: 1;
-          transform: translateY(0) scale(1);
+        *, *::before, *::after {
+          box-sizing: inherit;
         }
-      }
-  
-      .question p {
-        margin: 0 0 10px;
-        font-weight: 600;
-        color: var(--accent);
-      }
-  
-      .question label {
-        display: block;
-        padding: 10px 14px;
-        margin: 6px 0;
-        border-radius: 6px;
-        background: transparent;
-        transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
-        cursor: pointer;
-      }
-  
-      .question label:hover {
-        background-color: var(--hover);
-        transform: scale(1.015);
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-      }
-  
-      input[type="radio"] {
-        margin-right: 10px;
-      }
-  
-      /* === Submit Button === */
-      button {
-        background-color: var(--button);
-        color: #fff;
-        padding: 14px 30px;
-        font-weight: 600;
-        font-size: 16px;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        display: block;
-        margin: -20px auto 20px;
-        transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
-      }
-  
-      button:hover {
-        opacity: 0.95;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 10px rgba(139, 30, 63, 0.2);
-      }
-  
-      /* === Results Display Styling === */
-      .results {
-        max-width: 800px;
-        margin: 0 auto 40px;
-        padding: 20px;
-        border-top: 1px solid #444;
-      }
-  
-      .correct {
-        color: var(--correct);
-      }
-  
-      .incorrect {
-        color: var(--incorrect);
-      }
-  
-      /* === Theme Toggle Button === */
-      .theme-toggle {
-        position: relative;
-        top: 20px;
-        left: 2%;
-        background-color: var(--button);
-        color: #fff;
-        padding: 6px 16px;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 14px;
-        font-weight: 600;
-        transition: background 0.3s ease, transform 0.2s ease;
-      }
-  
-      .theme-toggle:hover {
-        transform: scale(1.05);
-        opacity: 0.9;
-      }
-  
-      /* === Mobile Responsive Header === */
-      @media (max-width: 600px) {
+      
+        body {
+          margin: 0;
+          font-family: 'Poppins', sans-serif;
+          background-color: var(--bg);
+          color: var(--text);
+          padding-top: 70px;
+          min-height: 100vh;
+          transition: background-color 0.4s ease, color 0.4s ease;
+        }
+      
+        /* === Theme Colors === */
+        :root {
+          --correct: #00693e;
+          --incorrect: #c62828;
+        }
+        [data-theme="dark"] {
+          --accent: #b4e197;
+          --bg: #181818;
+          --card: #242424;
+          --text: #e0e0e0;
+          --text-muted: #cccccc;
+          --hover: rgba(139, 30, 63, 0.15);
+          --button: #8B1E3F;
+        }
+        [data-theme="light"] {
+          --accent: #8B1E3F;
+          --bg: #f0f0f0;
+          --card: #fafafa;
+          --text: #111111;
+          --text-muted: #555555;
+          --hover: rgba(139, 30, 63, 0.1);
+          --button: #8B1E3F;
+        }
+      
+        /* === Header === */
         header {
-          flex-direction: column;
-          align-items: flex-start;
-          gap: 10px;
-        }
-  
-        .quiz-meta {
+          position: fixed;
+          top: 0;
           width: 100%;
+          background-color: var(--card);
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+          z-index: 100;
+          padding: 1rem 2rem;
+          display: flex;
           justify-content: space-between;
+          flex-wrap: wrap;
+          transition: background-color 0.4s ease;
+          height: auto;
+          gap: 1rem;
         }
-  
         header h1 {
+          margin: 0;
+          font-size: clamp(1rem, 1vw, 1rem);
+          color: var(--accent);
+          flex: 1 1 auto;
           text-align: left;
-          width: 100%;
+          white-space: nowrap;
         }
-      }
-
-      /* === Start Menu === */
-      #startMenu {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background-color: var(--card);
-        padding: 40px 30px;
-        border-radius: 16px;
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
-        z-index: 9999;
-        text-align: center;
-        width: 90%;
-        transition: opacity 0.3s ease, transform 0.3s ease;
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-        backdrop-filter: blur(8px);
-        animation: slideFadeIn 0.5s ease forwards;
-        opacity: 0;
-      }
-
-      /* Entrance animation */
-      @keyframes slideFadeIn {
-        0% {
+        .quiz-meta {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 1rem;
+          align-items: center;
+          justify-content: flex-end;
+          flex: 0 1 auto;
+        }
+      
+        /* === Progress === */
+        #progressBarContainer {
+          width: 150px;
+          height: 10px;
+          background-color: #333;
+          border-radius: 10px;
+          overflow: hidden;
+        }
+        #progressBar {
+          height: 100%;
+          background-color: var(--correct);
+          width: 0%;
+          transition: width 0.3s ease;
+        }
+      
+        /* === Timer === */
+        .timer {
+          font-weight: bold;
+          font-size: 1rem;
+          color: var(--accent);
+        }
+      
+        /* === Quiz === */
+        #quiz {
+          max-width: 800px;
+          margin: 0 auto;
+          padding: 2rem 1rem;
+        }
+        .question {
+          background-color: var(--card);
+          padding: 1.25rem;
+          border-radius: 0.75rem;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          margin-bottom: 1.5rem;
+          animation: fadeInSlideUp 0.5s ease both;
+          opacity: 0;
+        }
+        @keyframes fadeInSlideUp {
+          from { opacity: 0; transform: translateY(20px) scale(0.97); }
+          to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+      
+        .question p {
+          margin: 0 0 0.75rem;
+          font-weight: 600;
+          color: var(--accent);
+        }
+        .question label {
+          display: block;
+          padding: 0.75rem 1rem;
+          margin: 0.5rem 0;
+          border-radius: 0.5rem;
+          background: transparent;
+          transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+          cursor: pointer;
+        }
+        .question label:hover {
+          background-color: var(--hover);
+          transform: scale(1.015);
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+        }
+        input[type="radio"] {
+          margin-right: 10px;
+        }
+      
+        /* === Button === */
+        button,
+        .starttheme-toggle {
+          background-color: var(--button);
+          color: #fff;
+          padding: 0.75rem 1.5rem;
+          font-size: 1rem;
+          font-weight: 600;
+          border: none;
+          border-radius: 0.5rem;
+          cursor: pointer;
+          transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        button:hover,
+        .starttheme-toggle:hover {
+          transform: translateY(-2px);
+          opacity: 0.95;
+          box-shadow: 0 4px 10px rgba(139, 30, 63, 0.2);
+        }
+        button:focus,
+        .starttheme-toggle:focus {
+          outline: 2px solid var(--accent);
+          outline-offset: 2px;
+        }
+      
+        /* === Results === */
+        .results {
+          max-width: 800px;
+          margin: 0 auto 2rem;
+          padding: 1.25rem;
+          border-top: 1px solid #444;
+        }
+        .correct { color: var(--correct); }
+        .incorrect { color: var(--incorrect); }
+      
+        /* === Start Menu === */
+        #startMenu {
+          position: fixed;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          background-color: var(--card);
+          padding: 2.5rem 2rem;
+          border-radius: 1rem;
+          box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+          z-index: 9999;
+          text-align: center;
+          width: 90%;
+          display: flex;
+          flex-direction: column;
+          gap: 1.25rem;
+          backdrop-filter: blur(8px);
+          animation: slideFadeIn 0.5s ease forwards;
+          opacity: 0;
+        }
+        @keyframes slideFadeIn {
+          0% { opacity: 0; transform: translate(-50%, -60%); }
+          100% { opacity: 1; transform: translate(-50%, -50%); }
+        }
+        #startMenu h2 {
+          font-size: clamp(1.5rem, 5vw, 2rem);
+          color: var(--accent);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          gap: 0.5rem;
+          margin-top: -0.5rem;
+        }
+        #startMenu p,
+        #startMenu a {
+          color: var(--text-muted);
+          font-size: clamp(0.8rem, 3vw, 1rem);
+          line-height: 1.5;
+          margin-top: -1.5rem;
+        }
+        #startMenu a { color: var(--accent); }
+      
+        #startSheetSelect {
+          font-size: 1rem;
+          padding: 0.625rem 0.875rem;
+          border-radius: 0.5rem;
+          border: 1px solid var(--accent);
+          background-color: var(--bg);
+          color: var(--accent);
+          transition: border-color 0.3s ease;
+          margin-top: -1rem;
+        }
+        #startSheetSelect:focus {
+          outline: none;
+          border-color: var(--accent);
+        }
+        #startButton {
+          padding: 0.875rem 1.75rem;
+        }
+        .starttheme-toggle {
+          position: fixed;
+          bottom: 2vw;
+          right: 2vw;
+          z-index: 99999;
+        }
+      
+        /* === Accessibility === */
+        .visually-hidden {
+          position: absolute;
+          width: 1px;
+          height: 1px;
+          padding: 0;
+          margin: -1px;
+          overflow: hidden;
+          clip: rect(0, 0, 0, 0);
+          border: 0;
+        }
+      
+        /* === Animations === */
+        #quiz, header, .results {
+          animation: fadeIn 0.4s ease both;
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; transform: scale(0.97); }
+          to { opacity: 1; transform: scale(1); }
+        }
+        .fadeOut {
           opacity: 0;
           transform: translate(-50%, -60%);
+          pointer-events: none;
         }
-        100% {
-          opacity: 1;
-          transform: translate(-50%, -50%);
+      
+        /* === Responsive Layout === */
+
+        /* === MOBILE === */
+        @media (max-width: 480px) {
+        /*START MENU*/
+          #startMenu {
+            padding: 2rem 1.25rem;
+          }
+          #startMenu h2 {
+            font-size: 1.5rem;
+            flex-direction: column;
+          }
+          #startButton {
+            width: 100%;
+            padding: 0.75rem;
+          }
+          .starttheme-toggle {
+            font-size: 0.75rem;
+            padding: 0.5rem 0.75rem;
+          }
+        /*QUIZ*/
+          header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.25rem;
+            padding: 0.5rem 1rem; /* reduce padding */
+          }
+
+          header h1 {
+            font-size: 1.1rem; /* smaller title */
+            margin-bottom: 0.25rem;
+          }
+
+          .quiz-meta {
+            width: 100%;
+            justify-content: space-between;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+          }
+
+          #progressBarContainer {
+            width: 100%; /* full-width bar on small screens */
+            height: 8px;
+          }
+
+          .timer {
+            font-size: 0.95rem;
+          }
         }
-      }
-
-      /* Heading with icon support */
-      #startMenu h2 {
-        font-size: 2rem;
-        color: var(--accent);
-        margin: 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 10px;
-      }
-
-      /* Description */
-      #startMenu p {
-        color: var(--text-muted);
-        font-size: 1rem;
-        margin: 0;
-        line-height: 1.5;
-      }
-
-      #startMenu a {
-        color: var(--accent);
-        font-size: 1rem;
-        margin: 0;
-        line-height: 1.5;
-      }
-
-      /* Select dropdown */
-      #startSheetSelect {
-        margin-bottom: 1rem;
-        font-size: 1rem;
-        padding: 10px 14px;
-        border-radius: 8px;
-        border: 1px solid var(--border);
-        background-color: var(--bg);
-        color: var(--accent);
-        transition: border-color 0.3s ease;
-      }
-
-      #startSheetSelect:focus {
-        outline: none;
-        border-color: var(--accent);
-      }
-
-      /* Start Button */
-      #startButton {
-        background-color: var(--button);
-        color: #fff;
-        padding: 14px 28px;
-        font-size: 1rem;
-        font-weight: 600;
-        border: none;
-        border-radius: 10px;
-        cursor: pointer;
-        transition: background-color 0.3s ease, transform 0.2s ease;
-      }
-
-      #startButton:hover {
-        transform: translateY(-2px);
-        opacity: 0.95;
-        box-shadow: 0 4px 12px rgba(139, 30, 63, 0.3);
-      }
-
-      /* === Start Theme Toggle Button === */
-      .starttheme-toggle {
-        position: absolute;
-        top: 6%;
-        right: 1%;
-        background-color: var(--button);
-        color: #fff;
-        padding: 6px 16px;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 14px;
-        font-weight: 600;
-        transition: background 0.3s ease, transform 0.2s ease;
-      }
-  
-      .starttheme-toggle:hover {
-        transform: scale(1.05);
-        opacity: 0.9;
-      }
-
-      /* fade-out animation for when it's removed */
-      .fadeOut {
-        opacity: 0;
-        transform: translate(-50%, -60%);
-        pointer-events: none;
-      }
-
-      #quiz, header, .results {
-        animation: fadeIn 0.4s ease both;
-      }
-
-      @keyframes fadeIn {
-        from { opacity: 0; transform: scale(0.97); }
-        to { opacity: 1; transform: scale(1); }
-      }
-
-
-    </style>  
+    </style>
+      
   </head>
 
   <body>
 
     <!-- Start Menu -->
 
+    <button class="starttheme-toggle" onclick="start_toggleTheme()">🌞 Light Mode</button>
 
     <div id="startMenu">
-
-      <button class="starttheme-toggle" onclick="start_toggleTheme()">🌞 Light Mode</button>
-
       <h2>
-        <span>📝</span> Welcome to the UPCAT Review Tests
+        Welcome to the UPCAT Review Tests
       </h2>
       <p>
         Important Links:
@@ -407,7 +354,6 @@
           <br>
           <br>
         If you have any suggestions, or requests, please feel free to message me :D
-        <br>
         I hope this helps you in prepping for your CETs!!
         <br>
         <br>
@@ -415,6 +361,7 @@
         <br>
         <br>
         To start, select a quiz set below, then click Start Quiz to begin. You’ll be timed and shown results after submitting.
+        <br>
         <br>
         *the topics covered per day are in sheets
       </p>
@@ -433,24 +380,12 @@
       <h1>UPCAT Review Tests</h1>
       <div class="quiz-meta">
         <!-- Timer display -->
-        <div class="timer" id="timer">Time left: 45:00</div>
+        <div class="timer" id="timer">Time: 45:00</div>
   
         <!-- Progress bar container -->
         <div id="progressBarContainer">
           <div id="progressBar"></div>
         </div>
-  
-        <!-- Dropdown to select which Google Sheet tab (quiz) to load -->
-        <select id="sheetSelect">
-          <option value="W1D1">W1D1</option>
-          <option value="W1D2">W1D2</option>
-          <option value="W1D3">W1D3</option>
-          <option value="W1D4">W1D4</option>
-          <option value="W1D5">W1D5</option>
-        </select>
-  
-        <!-- Button to toggle dark/light mode -->
-        <button class="theme-toggle" onclick="toggleTheme()">🌞 Light Mode</button>
       </div>
     </header>
   
@@ -466,14 +401,6 @@
     <!-- Theme toggle script -->
     
     <script>
-      function toggleTheme() {
-        const html = document.documentElement;
-        const isDark = html.getAttribute('data-theme') === 'dark';
-        html.setAttribute('data-theme', isDark ? 'light' : 'dark');
-        const toggleBtn = document.querySelector('.theme-toggle');
-        toggleBtn.textContent = isDark ? '🌙 Dark Mode' : '🌞 Light Mode';
-      }
-
       function start_toggleTheme() {
         const html = document.documentElement;
         const isDark = html.getAttribute('data-theme') === 'dark';
@@ -499,9 +426,6 @@
         document.querySelector("button[onclick='submitQuiz()']").style.display = "block";
         document.getElementById("results").style.display = "block";
     
-        // Set dropdown to match selection
-        document.getElementById("sheetSelect").value = selectedSheet;
-    
         // Load quiz
         loadQuiz(selectedSheet);
       }
@@ -523,11 +447,6 @@
       let correctAnswers = []; // Stores correct answers from the sheet
       let totalQuestions = 0;  // Used to track progress and scoring
       let timeLeft = 2700;     // 45 minutes in seconds
-
-      // Load a new quiz when the dropdown changes
-      sheetSelect.addEventListener("change", () => {
-        loadQuiz(sheetSelect.value);
-      });
   
       // Update the progress bar based on how many questions were answered
       function updateProgress() {
@@ -545,7 +464,7 @@
         window._timerInterval = setInterval(() => {
           const minutes = Math.floor(timeLeft / 60);
           const seconds = timeLeft % 60;
-          timerElement.textContent = `Time left: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+          timerElement.textContent = `Time: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
           if (timeLeft <= 0) {
             clearInterval(window._timerInterval);
             submitQuiz(); // Auto-submit when time runs out
@@ -618,9 +537,6 @@
         resultsDiv.innerHTML += `<h3>Your Score: ${score}/${totalQuestions}</h3>`;
         resultsDiv.innerHTML += `<button onclick="loadQuiz(sheetSelect.value)">Retake Quiz</button>`;
       }
-  
-      // Load default quiz on first page load
-      loadQuiz(sheetSelect.value);
     </script>
   </body>
 
