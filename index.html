@@ -61,42 +61,39 @@
         header {
           position: fixed;
           top: 0;
+          height: 7%;
           width: 100%;
           background-color: var(--card);
           box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
           z-index: 100;
-          padding: 1rem 2rem;
+          padding: 0.5rem 1rem;
           display: flex;
+          align-items: center;
           justify-content: space-between;
-          flex-wrap: wrap;
-          transition: background-color 0.4s ease;
-          height: auto;
-          gap: 1rem;
+          gap: 0.5rem;
+          flex-wrap: nowrap;
+
         }
         header h1 {
-          margin: 0;
-          font-size: clamp(1rem, 1vw, 1rem);
+          margin-left: 2rem;
+          font-size: clamp(2rem, 4vw, 1.3rem);
           color: var(--accent);
           flex: 1 1 auto;
-          text-align: left;
           white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          min-width: 0;
         }
-        .quiz-meta {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 1rem;
-          align-items: center;
-          justify-content: flex-end;
-          flex: 0 1 auto;
-        }
-      
+
         /* === Progress === */
         #progressBarContainer {
-          width: 150px;
+          margin-right: 2rem;
+          width: clamp(20rem, 20vw, 150px);
           height: 10px;
           background-color: #333;
           border-radius: 10px;
           overflow: hidden;
+          flex-shrink: 0;
         }
         #progressBar {
           height: 100%;
@@ -108,8 +105,10 @@
         /* === Timer === */
         .timer {
           font-weight: bold;
-          font-size: 1rem;
+          font-size: clamp(1.4rem, 3vw, 1rem);
           color: var(--accent);
+          flex-shrink: 0;
+          white-space: nowrap;
         }
       
         /* === Quiz === */
@@ -155,8 +154,16 @@
           margin-right: 10px;
         }
       
+        .backbtn {
+          position: fixed;
+          bottom: 2vw;
+          left: 2vw;
+          z-index: 99999;
+        }
+        
         /* === Button === */
         button,
+        .backbtn
         .starttheme-toggle {
           background-color: var(--button);
           color: #fff;
@@ -169,12 +176,14 @@
           transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
         }
         button:hover,
+        .backbtn
         .starttheme-toggle:hover {
           transform: translateY(-2px);
           opacity: 0.95;
           box-shadow: 0 4px 10px rgba(139, 30, 63, 0.2);
         }
         button:focus,
+        .backbtn
         .starttheme-toggle:focus {
           outline: 2px solid var(--accent);
           outline-offset: 2px;
@@ -284,6 +293,12 @@
       
         /* === Responsive Layout === */
 
+        @media (max-width: 1000px) {
+          #progressBarContainer {
+            width: 10rem;
+          }
+        }
+
         /* === MOBILE === */
         @media (max-width: 480px) {
         /*START MENU*/
@@ -302,33 +317,29 @@
             font-size: 0.75rem;
             padding: 0.5rem 0.75rem;
           }
-        /*QUIZ*/
+        /*HEADER*/
           header {
-            flex-direction: column;
-            align-items: flex-start;
+            height: 7%;
             gap: 0.25rem;
-            padding: 0.5rem 1rem; /* reduce padding */
+            padding: 0.5rem 0.75rem;
           }
 
           header h1 {
-            font-size: 1.1rem; /* smaller title */
-            margin-bottom: 0.25rem;
-          }
-
-          .quiz-meta {
-            width: 100%;
-            justify-content: space-between;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-          }
-
-          #progressBarContainer {
-            width: 100%; /* full-width bar on small screens */
-            height: 8px;
+            margin-left: 0.5rem;
+            font-size: 1rem;
           }
 
           .timer {
-            font-size: 0.95rem;
+            font-size: 0.85rem;
+          }
+
+          #progressBarContainer {
+            margin-right: 0.5rem;
+            width: 5rem
+          }
+          .backbtn {
+            font-size: 0.75rem;
+            padding: 0.5rem 0.75rem;
           }
         }
     </style>
@@ -336,11 +347,8 @@
   </head>
 
   <body>
-
     <!-- Start Menu -->
-
     <button class="starttheme-toggle" onclick="start_toggleTheme()">🌞 Light Mode</button>
-
     <div id="startMenu">
       <h2>
         Welcome to the UPCAT Review Tests
@@ -378,27 +386,30 @@
     <!-- Header section containing the title, timer, progress bar, sheet selector, and theme toggle -->
     <header style="display: none;">
       <h1>UPCAT Review Tests</h1>
-      <div class="quiz-meta">
-        <!-- Timer display -->
-        <div class="timer" id="timer">Time: 45:00</div>
-  
-        <!-- Progress bar container -->
-        <div id="progressBarContainer">
-          <div id="progressBar"></div>
-        </div>
+
+    <!-- Timer display -->
+      <div class="timer" id="timer">Time: 45:00</div>
+
+      <!-- Progress bar container -->
+      <div id="progressBarContainer">
+        <div id="progressBar"></div>
       </div>
+
     </header>
   
     <!-- Where quiz questions will be inserted -->
     <div id="quiz" style="display: none;"></div>
   
+    <!-- Back Button -->
+    <button id="backbtn" class="backbtn" onclick="backbtn()" style="display: none;">Back</button>
+
     <!-- Submit button to check answers -->
     <button onclick="submitQuiz()" style="display: none;">Submit Answers</button>
   
     <!-- Results will be shown here -->
     <div class="results" id="results" style="display: none;"></div>
   
-    <!-- Theme toggle script -->
+    <!-- Buttons script -->
     
     <script>
       function start_toggleTheme() {
@@ -407,6 +418,27 @@
         html.setAttribute('data-theme', isDark ? 'light' : 'dark');
         const toggleBtn = document.querySelector('.starttheme-toggle');
         toggleBtn.textContent = isDark ? '🌙 Dark Mode' : '🌞 Light Mode';
+      }
+
+      function backbtn() {
+        // Hide quiz elements
+        document.querySelector("header").style.display = "none";
+        document.getElementById("quiz").style.display = "none";
+        document.querySelector("button[onclick='submitQuiz()']").style.display = "none";
+        document.getElementById("results").style.display = "none";
+
+        // Reset quiz data if needed
+        document.getElementById("quiz").innerHTML = "";
+        document.getElementById("results").innerHTML = "";
+
+        // Stop timer
+        clearInterval(window._timerInterval);
+
+        // Show start menu
+        document.getElementById("startMenu").style.display = "flex";
+
+        // Hide back button
+        document.getElementById("backbtn").style.display = "none";
       }
     </script>
   
@@ -428,6 +460,9 @@
     
         // Load quiz
         loadQuiz(selectedSheet);
+
+        // Show back button
+        document.getElementById("backbtn").style.display = "flex";
       }
     </script>
     
