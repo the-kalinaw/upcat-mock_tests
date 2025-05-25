@@ -186,6 +186,19 @@ input[type="radio"] {
   margin-right: 10px;
 }
 
+.passage-text {
+  background-color: var(--card);
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1.5rem;
+  line-height: 1.7;
+}
+.passage-text p {
+  margin: 0;
+  font-weight: normal;
+  color: var(--text);
+}
+
 /* ==================== */
 /* === Buttons === */
 /* ==================== */
@@ -530,7 +543,6 @@ button:focus {
   border-color: var(--text-lighter);
 }
 
-
 /* ==================== */
 /* === Accessibility === */
 /* ==================== */
@@ -672,3 +684,4 @@ button:focus {
     font-size: 0.8em; /* Smaller font for status tags */
     margin-left: 0.3em;
   }
+
