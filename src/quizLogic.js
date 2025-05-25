@@ -59,30 +59,41 @@ export async function loadQuiz(sheetName) {
 
   const newCorrectAnswers = [];
   const newQuizQuestionsBySubject = {};
+  let globalQuestionIndex = 0; // Only counts actual questions, not passages
 
-  rawQuestions.forEach((q, index) => {
-    // Ensure 'Answer' and 'Subject' properties exist and are trimmed
-    const correctAnswer = q.Answer ? q.Answer.trim().toUpperCase() : '';
+  rawQuestions.forEach((q) => {
+    // Determine if this row is a passage text (no choices, no answer, but has question text)
+    const isPassage = q.Question && !q.A && !q.B && !q.C && !q.D && !q.Answer;
     const subject = q.Subject ? q.Subject.trim() : "Uncategorized";
-
-    newCorrectAnswers[index] = correctAnswer; // Store correct answer by its global index
 
     if (!newQuizQuestionsBySubject[subject]) {
       newQuizQuestionsBySubject[subject] = [];
     }
-    newQuizQuestionsBySubject[subject].push({
-      questionIndex: index, // Store the global index for easy lookup
+
+    const currentItem = {
+      isPassageText: isPassage,
       question: q.Question,
       A: q.A,
       B: q.B,
       C: q.C,
       D: q.D,
-      explanation: q.Explanation || 'No explanation provided.', // Handle missing explanation
-    });
+    };
+
+    if (isPassage) {
+      currentItem.questionIndex = -1;
+    } else {
+      currentItem.questionIndex = globalQuestionIndex;
+      // Only store correct answers for actual questions
+      const correctAnswer = q.Answer ? q.Answer.trim().toUpperCase() : '';
+      newCorrectAnswers[globalQuestionIndex] = correctAnswer;
+      globalQuestionIndex++;
+    }
+
+    newQuizQuestionsBySubject[subject].push(currentItem);
   });
 
   setCorrectAnswers(newCorrectAnswers);
-  setTotalQuestions(rawQuestions.length);
+  setTotalQuestions(globalQuestionIndex); // Only count actual questions
   setQuizQuestionsBySubject(newQuizQuestionsBySubject);
 
   // Successfully loaded data, now update the UI
@@ -109,32 +120,42 @@ function displayQuestions(questionsBySubject) {
   quizForm.id = 'quizForm';
   quizContainer.appendChild(quizForm);
 
+  let questionDisplayCounter = 0; // For numbering only real questions
+
   // Iterate over subjects and their questions
   for (const subject in questionsBySubject) {
-    const subjectQuestions = questionsBySubject[subject];
-    if (subjectQuestions.length === 0) continue; // Skip empty subjects
+    const subjectItems = questionsBySubject[subject];
+    if (subjectItems.length === 0) continue; // Skip empty subjects
 
     const subjectSection = document.createElement("div");
     subjectSection.className = "subject-section";
     subjectSection.innerHTML = `<h2>${subject}</h2>`; // Subject heading
 
-    subjectQuestions.forEach((q) => {
-      const div = document.createElement("div");
-      div.className = "question";
-      div.innerHTML = `
-        <p><strong>${q.questionIndex + 1}. ${q.question}</strong></p>
-        <label><input type="radio" name="q${q.questionIndex}" value="A"> A. ${q.A}</label>
-        <label><input type="radio" name="q${q.questionIndex}" value="B"> B. ${q.B}</label>
-        <label><input type="radio" name="q${q.questionIndex}" value="C"> C. ${q.C}</label>
-        <label><input type="radio" name="q${q.questionIndex}" value="D"> D. ${q.D}</label>
-      `;
-      subjectSection.appendChild(div);
+    subjectItems.forEach((item) => {
+      if (item.isPassageText) {
+        const div = document.createElement("div");
+        div.className = "passage-text";
+        div.innerHTML = `<p>${item.question}</p>`;
+        subjectSection.appendChild(div);
+      } else {
+        questionDisplayCounter++;
+        const div = document.createElement("div");
+        div.className = "question";
+        div.innerHTML = `
+          <p><strong>${questionDisplayCounter}. ${item.question}</strong></p>
+          ${item.A ? `<label><input type="radio" name="q${item.questionIndex}" value="A"> A. ${item.A}</label>` : ''}
+          ${item.B ? `<label><input type="radio" name="q${item.questionIndex}" value="B"> B. ${item.B}</label>` : ''}
+          ${item.C ? `<label><input type="radio" name="q${item.questionIndex}" value="C"> C. ${item.C}</label>` : ''}
+          ${item.D ? `<label><input type="radio" name="q${item.questionIndex}" value="D"> D. ${item.D}</label>` : ''}
+        `;
+        subjectSection.appendChild(div);
+      }
     });
     quizForm.appendChild(subjectSection);
   }
 
   if (window.MathJax) {
-  window.MathJax.typesetPromise();
+    window.MathJax.typesetPromise();
   }
 
   // Add a single event listener to the form for all radio button changes.
