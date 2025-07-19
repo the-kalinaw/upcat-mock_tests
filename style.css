@@ -357,10 +357,10 @@ button:focus {
 /* === Start Menu === */
 /* ==================== */
 #startMenu {
-  position: fixed;
-  top: 50%;
+  position: fixed; /* Keeps it in view, but we will manage overflow */
+  top: 5vh; /* Starts 5% from the top of the viewport */
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translateX(-50%); /* Only centers horizontally */
   background-color: var(--card);
   padding: 2.5rem 2rem;
   border-radius: 1rem;
@@ -368,16 +368,19 @@ button:focus {
   z-index: 9999;
   text-align: center;
   width: 90%;
+  max-width: 600px; /* Good for desktop */
+  max-height: 90vh; /* Crucial: limits the height to 90% of the screen's height */
+  overflow-y: auto; /* Crucial: adds a scrollbar ONLY if content is taller than max-height */
   display: flex;
   flex-direction: column;
-  gap: 1.25rem; /* This gap now applies between children of startMenu, e.g., the new wrapper and the startQuizBtn */
+  gap: 1.25rem;
   backdrop-filter: blur(8px);
   animation: slideFadeIn 0.5s ease forwards;
   opacity: 0; /* Start hidden for animation */
 }
 @keyframes slideFadeIn {
-  0% { opacity: 0; transform: translate(-50%, -60%); }
-  100% { opacity: 1; transform: translate(-50%, -50%); }
+  0% { opacity: 0; top: 0; }
+  100% { opacity: 1; top: 5vh; }
 }
 #startMenu h2 {
   font-size: clamp(1.5rem, 5vw, 2rem);
@@ -393,7 +396,7 @@ button:focus {
   color: var(--text-muted);
   font-size: clamp(0.8rem, 3vw, 1rem);
   line-height: 1.5;
-  margin-top: -1.5rem;
+  margin-top: 0;
 }
 #startMenu a { color: var(--accent); }
 
