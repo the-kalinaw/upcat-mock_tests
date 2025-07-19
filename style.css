@@ -368,7 +368,6 @@ button:focus {
   z-index: 9999;
   text-align: center;
   width: 90%;
-  max-width: 600px; /* Good for desktop */
   max-height: 90vh; /* Crucial: limits the height to 90% of the screen's height */
   overflow-y: auto; /* Crucial: adds a scrollbar ONLY if content is taller than max-height */
   display: flex;
