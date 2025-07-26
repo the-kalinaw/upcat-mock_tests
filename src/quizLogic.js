@@ -63,7 +63,7 @@ export async function loadQuiz(sheetName) {
 
   rawQuestions.forEach((q) => {
     // Determine if this row is a passage text (no choices, no answer, but has question text)
-    const isPassage = q.Question && !q.A && !q.B && !q.C && !q.D && !q.Answer;
+    const isPassage = !q.ID;
     const subject = q.Subject ? q.Subject.trim() : "Uncategorized";
 
     if (!newQuizQuestionsBySubject[subject]) {
@@ -200,7 +200,7 @@ export function submitQuiz() {
   // Initialize subject scores and total questions
   for (const subject in quizQuestionsBySubject) {
     subjectScores[subject] = 0;
-    subjectTotalQuestions[subject] = quizQuestionsBySubject[subject].length;
+    subjectTotalQuestions[subject] = quizQuestionsBySubject[subject].filter(item => !item.isPassageText).length;
   }
 
   for (let i = 0; i < totalQuestions; i++) {
