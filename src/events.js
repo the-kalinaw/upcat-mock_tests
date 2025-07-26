@@ -93,11 +93,11 @@ export function attachEventListeners() {
         dailyDaySelect.appendChild(option);
       }
       // Add Day 6 Mock option
-      const mockOption = document.createElement('option');
-      mockOption.value = `Day6Mock`; // Value is "Day6Mock" to match sheet naming
-      mockOption.textContent = `Day 6 Mock`;
-      dailyDaySelect.appendChild(mockOption);
-    }
+      //const mockOption = document.createElement('option');
+      //mockOption.value = `Day6Mock`; // Value is "Day6Mock" to match sheet naming
+      //mockOption.textContent = `Day 6 Mock`;
+      //dailyDaySelect.appendChild(mockOption);
+    //}
     // Re-evaluate start button state
     startQuizBtn.disabled = !(dailyWeekSelect.value && dailyDaySelect.value);
   });
